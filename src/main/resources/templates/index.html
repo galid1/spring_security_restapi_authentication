@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Title</title>
+    <script
+        src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+        crossorigin="anonymous"></script>
+
+    <!--    <script th:inline="javascript">-->
+    <!--      let lis = /*[[${a}]]*/ ;-->
+
+    <!--      console.log(lis);-->
+    <!--      console.log(JSON.stringify(lis));-->
+
+    <!--      for(let n in lis) {-->
+    <!--        console.log(n);-->
+    <!--      }-->
+    <!--    </script>-->
+
+
+</head>
+<body>
+
+<input type="text" id="chatInput" style="width: 30vw; height: 30px">
+
+<div id="update" style="background-color: #55ddee; width: 10vw; height: 3vh;">
+        <span>
+          click
+      </span>
+</div>
+
+
+<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-database.js"></script>
+<!-- Add Firebase products that you want to use -->
+<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyB4YUSJ_sN3bh3mrAAi8Ax1I0V0mojs6Bo",
+    authDomain: "react-native-chat-cac78.firebaseapp.com",
+    databaseURL: "https://react-native-chat-cac78.firebaseio.com",
+    projectId: "react-native-chat-cac78",
+    storageBucket: "react-native-chat-cac78.appspot.com",
+    messagingSenderId: "465888084350",
+    appId: "1:465888084350:web:6b8272f3f6657e7b6cb32f",
+    measurementId: "G-4ZVGS2NVF0"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  let database = firebase.database();
+
+  $(function() {
+    let uid = 1;
+    $("#update").on('click', function() {
+      let ref = database.ref(`${uid}`);
+      let randomKey = ref.push().key;
+      ref.child(randomKey).set({
+        date: _getNumberDate(),
+        from: 'admin',
+        message: $("#chatInput").val()
+      });
+    });
+
+    let startCountRef = database.ref(`${uid}`);
+    startCountRef.on('value', function(snapshot) {
+      console.log(snapshot.val());
+    })
+  });
+
+  _getNumberDate = () => {
+    let now = new Date();
+    let nowString = now.getFullYear().toString()
+      + this._toDouble(now.getMonth() < 12 ? now.getMonth() + 1 : 1)
+      + this._toDouble(now.getDate())
+      + this._toDouble(now.getHours())
+      + this._toDouble(now.getMinutes())
+      + this._toDouble(now.getSeconds());
+
+    return (Number(nowString));
+  };
+
+  _toDouble = anyDate => {
+    if (String(anyDate).length == 1) {
+      return '0' + anyDate;
+    } else {
+      return String(anyDate);
+    }
+  };
+</script>
+
+</body>
+</html>
