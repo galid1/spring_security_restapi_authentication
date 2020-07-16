@@ -34,15 +34,13 @@ public class JwtUtil {
     }
 
     public String refreshToken(Long requesterId, String refreshToken) {
-        validateToken(requesterId, refreshToken);
+        validateToken(refreshToken);
 
         return generateToken(requesterId, ApiTokenType.ACCESS_TOKEN);
     }
 
-    public void validateToken(Long requesterId, String token) {
-        Long ownerId = Long.parseLong(getClaimFromToken(token, Claims::getAudience));
-
-        if(!requesterId.equals(ownerId) || isTokenExpired(token))
+    public void validateToken(String token) {
+        if(isTokenExpired(token))
             throw new IllegalStateException("유효하지 않은 토큰입니다.");
     }
 
