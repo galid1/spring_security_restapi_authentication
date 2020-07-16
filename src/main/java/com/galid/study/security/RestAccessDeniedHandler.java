@@ -11,6 +11,7 @@ import java.io.IOException;
 public class RestAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        response.sendError();
+        System.out.println("access denied handler 동작 !!!!");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Forbidden");
     }
 }
