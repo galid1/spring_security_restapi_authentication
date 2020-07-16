@@ -3,6 +3,8 @@ package com.galid.study.security;
 import com.galid.study.config.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -21,22 +23,26 @@ public class LoginFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        validateExistAccessToken(authorizationHeader);
 
+        validateAuthorizationHeader(authorizationHeader);
         doAuthenticate(getAccessTokenFromAuthorizationHeader(authorizationHeader));
+
         filterChain.doFilter(request, response);
     }
 
-    private void validateExistAccessToken(String authorizationHeader) {
+    private void validateAuthorizationHeader(String authorizationHeader) {
         if(authorizationHeader == null || !authorizationHeader.startsWith(TOKEN_PREFIX))
             throw new IllegalArgumentException("Authorization Header 가 존재하지 않거나 올바르지 않은 형식입니다.");
     }
 
-    private String getAccessTokenFromAuthorizationHeader(String authorizationHeader) {
-        return authorizationHeader.substring(TOKEN_PREFIX.length());
+    private void doAuthenticate(String accessToken) {
+        jwtUtil.validateToken(accessToken);
+
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken()
+        SecurityContextHolder.getContext().setAuthentication();
     }
 
-    private void doAuthenticate(String accessToken) {
-
+    private String getAccessTokenFromAuthorizationHeader(String authorizationHeader) {
+        return authorizationHeader.substring(TOKEN_PREFIX.length());
     }
 }
