@@ -2,11 +2,13 @@ package com.galid.study.user;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Entity
 @Table(name = "users")
@@ -19,9 +21,17 @@ public class UserEntity {
     private String name;
     private String password;
 
-    public UserEntity(String name, String password){
+    @ElementCollection
+    @CollectionTable(
+            name = "user_authorities",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<Long> authorities = new TreeSet<>();
+
+    public UserEntity(String name, String password, Long ...authorityIdList){
         this.name = name;
         this.password = password;
+        this.authorities.addAll(Arrays.asList(authorityIdList));
     }
 
     public void login(String name, String password) {
