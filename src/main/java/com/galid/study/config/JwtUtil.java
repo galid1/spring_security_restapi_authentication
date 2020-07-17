@@ -1,9 +1,7 @@
 package com.galid.study.config;
 
 import com.galid.study.user.ApiTokenType;
-import com.galid.study.user.UserEntity;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -19,7 +17,7 @@ public class JwtUtil {
     private int REFRESH_TOKEN_EXPIRATION_DATE = 60 * 60 * 24 * 365; // 365 Days
     private SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public String generateToken(Long requesterId, ApiTokenType type) {
+    public String generateToken(String userAuthId, ApiTokenType type) {
         Date expiration;
         if(type == ApiTokenType.ACCESS_TOKEN)
             expiration = new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_DATE * 1000);
@@ -28,15 +26,15 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setExpiration(expiration)
-                .setAudience(String.valueOf(requesterId))
+                .setAudience(userAuthId)
                 .signWith(key)
                 .compact();
     }
 
-    public String refreshToken(Long requesterId, String refreshToken) {
+    public String refreshToken(String userAuthId, String refreshToken) {
         validateToken(refreshToken);
 
-        return generateToken(requesterId, ApiTokenType.ACCESS_TOKEN);
+        return generateToken(userAuthId, ApiTokenType.ACCESS_TOKEN);
     }
 
     public void validateToken(String token) {
@@ -50,7 +48,7 @@ public class JwtUtil {
         return !tokenExpirationDate.after(now);
     }
 
-    private <T> T getClaimFromToken(String token, Function<Claims, T> claimResolver) {
+    public <T> T getClaimFromToken(String token, Function<Claims, T> claimResolver) {
         final Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
