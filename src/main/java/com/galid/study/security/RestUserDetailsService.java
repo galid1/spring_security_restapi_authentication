@@ -11,6 +11,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class RestUserDetailsService implements UserDetailsService {
@@ -20,6 +23,13 @@ public class RestUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity userEntity = userRepository.findFirstByName(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-        return new User(userEntity.getName(), userEntity.getPassword(), null);
+
+        return new User(userEntity.getName(), userEntity.getPassword(), getAuthorities(userEntity));
+    }
+
+    private List<SimpleGrantedAuthority> getAuthorities(UserEntity userEntity) {
+        return userEntity.getAuthorities().stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+                .collect(Collectors.toList());
     }
 }
