@@ -18,7 +18,7 @@ public class UserEntity {
     @Id @GeneratedValue
     private Long userId;
 
-    private String name;
+    private String authId;
     private String password;
 
     @ElementCollection
@@ -28,14 +28,14 @@ public class UserEntity {
     )
     private Set<Authority> authorities = new TreeSet<>();
 
-    public UserEntity(String name, String password, Authority ...authorityList){
-        this.name = name;
+    public UserEntity(String authId, String password, Authority ...authorityList){
+        this.authId = authId;
         this.password = password;
         this.authorities.addAll(Arrays.asList(authorityList));
     }
 
-    public void login(String name, String password) {
-        if(!this.name.equals(name) ||
+    public void login(String authId, String password) {
+        if(!this.authId.equals(authId) ||
            !this.password.equals(password))
             throw new IllegalArgumentException("로그인 정보가 일치하지 않습니다.");
     }

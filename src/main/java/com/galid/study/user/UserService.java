@@ -24,23 +24,22 @@ public class UserService {
 
     @Transactional
     public Long signIn(SignInRequest request) {
-        UserEntity userEntity = userRepository.findFirstByName(request.getName())
+        UserEntity userEntity = userRepository.findFirstByName(request.getAuthId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 User 입니다."));
 
-        userEntity.login(request.getName(), encoder.encode(request.getPassword()));
-        issueToken(userEntity.getUserId());
+        userEntity.login(request.getAuthId(), encoder.encode(request.getPassword()));
+        issueToken(userEntity.getUserId(), userEntity.getAuthId());
 
         return userEntity.getUserId();
     }
 
-    @Transactional
-    public void issueToken(Long userId) {
+    private void issueToken(Long userId, String authId) {
         apiTokenRepository.removeByUserId(userId);
 
         ApiTokenEntity entity = ApiTokenEntity.builder()
                 .userId(userId)
-                .accessToken(jwtUtil.generateToken(userId, ApiTokenType.ACCESS_TOKEN))
-                .refreshToken(jwtUtil.generateToken(userId, ApiTokenType.REFRESH_TOKEN))
+                .accessToken(jwtUtil.generateToken(authId, ApiTokenType.ACCESS_TOKEN))
+                .refreshToken(jwtUtil.generateToken(authId, ApiTokenType.REFRESH_TOKEN))
                 .build();
 
         apiTokenRepository.save(entity);

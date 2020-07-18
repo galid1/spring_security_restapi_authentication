@@ -24,7 +24,7 @@ public class RestUserDetailsService implements UserDetailsService {
         UserEntity userEntity = userRepository.findFirstByName(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        return new User(userEntity.getName(), userEntity.getPassword(), getAuthorities(userEntity));
+        return new User(userEntity.getAuthId(), userEntity.getPassword(), getAuthorities(userEntity));
     }
 
     private List<SimpleGrantedAuthority> getAuthorities(UserEntity userEntity) {
