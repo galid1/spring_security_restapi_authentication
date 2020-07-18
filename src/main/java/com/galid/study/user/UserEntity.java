@@ -26,12 +26,12 @@ public class UserEntity {
             name = "user_authorities",
             joinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<Long> authorities = new TreeSet<>();
+    private Set<Authority> authorities = new TreeSet<>();
 
-    public UserEntity(String name, String password, Long ...authorityIdList){
+    public UserEntity(String name, String password, Authority ...authorityList){
         this.name = name;
         this.password = password;
-        this.authorities.addAll(Arrays.asList(authorityIdList));
+        this.authorities.addAll(Arrays.asList(authorityList));
     }
 
     public void login(String name, String password) {
