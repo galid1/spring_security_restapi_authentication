@@ -18,7 +18,7 @@ public class UserService {
 
     @Transactional
     public Long signUp(SignUpRequest request) {
-        UserEntity userEntity = new UserEntity(request.getName(), request.getPassword());
+        UserEntity userEntity = new UserEntity(request.getAuthId(), request.getPassword());
         return userEntity.getUserId();
     }
 
