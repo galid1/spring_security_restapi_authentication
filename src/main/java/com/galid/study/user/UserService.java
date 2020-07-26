@@ -24,7 +24,7 @@ public class UserService {
 
     @Transactional
     public Long signIn(SignInRequest request) {
-        UserEntity userEntity = userRepository.findFirstByName(request.getAuthId())
+        UserEntity userEntity = userRepository.findFirstByAuthId(request.getAuthId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 User 입니다."));
 
         userEntity.login(request.getAuthId(), encoder.encode(request.getPassword()));

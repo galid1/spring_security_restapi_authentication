@@ -21,7 +21,7 @@ public class RestUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity userEntity = userRepository.findFirstByName(username)
+        UserEntity userEntity = userRepository.findFirstByAuthId(username)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         return new User(userEntity.getAuthId(), userEntity.getPassword(), getAuthorities(userEntity));
