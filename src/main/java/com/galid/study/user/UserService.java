@@ -4,6 +4,9 @@ import com.galid.study.SignInRequest;
 import com.galid.study.SignUpRequest;
 import com.galid.study.config.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final ApiTokenRepository apiTokenRepository;
     private final PasswordEncoder encoder;
@@ -18,7 +22,8 @@ public class UserService {
 
     @Transactional
     public Long signUp(SignUpRequest request) {
-        UserEntity userEntity = new UserEntity(request.getAuthId(), request.getPassword());
+        UserEntity userEntity = new UserEntity(request.getAuthId(), encoder.encode(request.getPassword()), Authority.USER);
+        userRepository.save(userEntity);
         return userEntity.getUserId();
     }
 
@@ -27,10 +32,14 @@ public class UserService {
         UserEntity userEntity = userRepository.findFirstByAuthId(request.getAuthId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 User 입니다."));
 
-        userEntity.login(request.getAuthId(), encoder.encode(request.getPassword()));
+        authenticate(request.getAuthId(), request.getPassword());
         issueToken(userEntity.getUserId(), userEntity.getAuthId());
 
         return userEntity.getUserId();
+    }
+
+    private void authenticate(String authId, String password) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authId, password));
     }
 
     private void issueToken(Long userId, String authId) {
