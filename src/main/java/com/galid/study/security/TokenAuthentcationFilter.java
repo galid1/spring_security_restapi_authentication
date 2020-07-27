@@ -1,10 +1,13 @@
 package com.galid.study.security;
 
 import com.galid.study.config.JwtUtil;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class LoginFilter extends OncePerRequestFilter {
+public class TokenAuthentcationFilter extends OncePerRequestFilter {
     private final String TOKEN_PREFIX = "Bearer ";
     private final UserDetailsService detailsService;
     private final JwtUtil jwtUtil;
@@ -36,13 +39,20 @@ public class LoginFilter extends OncePerRequestFilter {
     }
 
     private void doAuthenticate(String accessToken) {
+        // token 유효성 검사
         jwtUtil.validateToken(accessToken);
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken()
-        SecurityContextHolder.getContext().setAuthentication();
+        String userAuthId = jwtUtil.getClaimFromToken(accessToken, Claims::getAudience);
+        UserDetails userDetails = detailsService.loadUserByUsername(userAuthId);
+
+        makeAuthenticated(new UsernamePasswordAuthenticationToken(userDetails, accessToken, userDetails.getAuthorities()));
     }
 
     private String getAccessTokenFromAuthorizationHeader(String authorizationHeader) {
         return authorizationHeader.substring(TOKEN_PREFIX.length());
+    }
+
+    private void makeAuthenticated(Authentication authentication) {
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }
