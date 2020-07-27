@@ -33,10 +33,4 @@ public class UserEntity {
         this.password = password;
         this.authorities.addAll(Arrays.asList(authorityList));
     }
-
-    public void login(String authId, String password) {
-        if(!this.authId.equals(authId) ||
-           !this.password.equals(password))
-            throw new IllegalArgumentException("로그인 정보가 일치하지 않습니다.");
-    }
 }
